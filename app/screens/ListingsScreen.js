@@ -1,38 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
+import { Button } from '../Components/Button';
+import ActivityIndicator from "../Components/ActivityIndicator";
+import expensesApi from '../api/expensesApi';
 
 import Screen from '../Components/Screen';
 import Card from '../Components/Card';
 import colors from '../config/colors';
+import useApi from "../hooks/useApi";
+import useAuth from "../auth/useAuth";
 
-const listings= [
-    {
-        id: 1,
-        title: 'Red jacket for sale',
-        price: 100,
-        image: require('../assets/jacket.jpg')
-    },
-    {
-        id: 2,
-        title: 'Couch in great condition',
-        price: 1000,
-        image: require('../assets/couch.jpg')
-    },
-]
 function ListingsScreen(props) {
+
+    const getExpensesApi = useApi(expensesApi.getExpenses);
+    const { user } = useAuth();
+    useEffect(() => {
+        const id = user.id
+        getExpensesApi.request(id);
+    }, []);
+
     return (
-        <Screen style={styles.screen}>
-            <FlatList 
-                data={listings}
-                keyExtractor={listing => listing.id.toString()}
-                renderItem={({ item }) =>
-                    <Card 
-                        title={item.title}
-                        subTitle={"$" + item.price}
-                        image={item.image} />
-                }       
-            />
-        </Screen>
+        <>
+            <ActivityIndicator visible={getExpensesApi.loading} />
+            <Screen style={styles.screen}>
+                {getExpensesApi.error && (
+                    <>
+                    <AppText>Couldn't retrieve the expenses.</AppText>
+                    <Button title="Retry" onPress={getExpensesApi.request} />
+                    </>
+                )}
+                <FlatList 
+                    data={getExpensesApi.data.expenses}
+                    keyExtractor={listing => listing.id.toString()}
+                    renderItem={({ item }) =>
+                        <Card 
+                            title={item.title}
+                            date={item.date}
+                            subTitle={"Price: " + item.price}
+                            image={item.image} />
+                    }       
+                />
+            </Screen>
+        </>
     );
 }
 

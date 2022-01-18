@@ -13,7 +13,6 @@ const INITIAL_STATE = {
 
 
 export const loginReducer = (state = INITIAL_STATE, action) => {
-    console.log("\n\n\n\n Manzi login")
 
     switch (action.type) {
         case LOGIN_START:

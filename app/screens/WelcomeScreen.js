@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, ImageBackground, StyleSheet, Text, View} from 'react-native';
 import AppButton from '../Components/Button';
+import colors from '../config/colors';
 
 
 function WelcomeScreen({ navigation }) {
@@ -47,6 +48,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight:"600",
         paddingVertical: 20,
+        color: colors.white
     },
 
 })
