@@ -1,14 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import Screen from '../Components/Screen';
 import ListItem from '../Components/lists/ListItem';
 import colors from '../config/colors';
 import Icon from '../Components/Icon';
-import useAuth from "../auth/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/actions";
+import { bindActionCreators } from "redux";
 
 function AccountScreen() {
-    const { user, logOut } = useAuth();
+    const dispatch = useDispatch();
+    const logoutAction = bindActionCreators(logout, dispatch)
+    const { user } = useSelector((state) => state.login);
 
     return (
         <Screen style={styles.screen}>
@@ -24,7 +28,7 @@ function AccountScreen() {
                 IconComponent={
                     <Icon name="logout" backgroundColor= "#ffe66d"/>
                 }
-                onPress={() => logOut()}
+                onPress={() => logoutAction()}
             />
                 
         </Screen>

@@ -4,11 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import AppNavigator from './AppNavigator';
+import { useSelector } from "react-redux";
 
 const Stack = createNativeStackNavigator();
 
 const AuthNavigator = () => {
-    return (
+
+    return (            
         <Stack.Navigator>
             <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Login" component={LoginScreen} />

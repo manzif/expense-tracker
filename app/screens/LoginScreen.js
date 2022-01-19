@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Image } from "react-native";
 import * as Yup from "yup";
 
@@ -9,8 +9,10 @@ import {
   FormField,
   SubmitButton,
 } from "../Components/forms";
-import authApi from "../api/auth";
-import useAuth from "../auth/useAuth";
+import { bindActionCreators } from "redux";
+import { login } from "../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import ActivityIndicator from "../Components/ActivityIndicator";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -18,50 +20,52 @@ const validationSchema = Yup.object().shape({
 });
 
 function LoginScreen () {
-  const auth = useAuth();
-  const [loginFailed, setLoginFailed] = useState(false);
 
-  const handleSubmit = async ({ email, password }) => {
-    const result = await authApi.login(email, password);
-    if (!result.ok) return setLoginFailed(true);
-    setLoginFailed(false);
-    auth.logIn(result.data);
+  const { logging, errors } = useSelector((state) => state.login);
+  const dispatch = useDispatch();
+  const loginAction = bindActionCreators(login, dispatch)
+
+  const handleSubmit = (userInfo) => {
+    loginAction(userInfo);
   };
 
   return (
-    <Screen style={styles.container}>
-      <Image style={styles.logo} source={require("../assets/logo.png")} />
+    <>
+    <ActivityIndicator visible={logging} />
+      <Screen style={styles.container}>
+        <Image style={styles.logo} source={require("../assets/logo.png")} />
 
-      <Form
-        initialValues={{ email: "", password: "" }}
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-      >
-        <ErrorMessage
-          error="Invalid email and/or password."
-          visible={loginFailed}
-        />
-        <FormField
-          autoCapitalize="none"
-          autoCorrect={false}
-          icon="email"
-          keyboardType="email-address"
-          name="email"
-          placeholder="Email"
-          textContentType="emailAddress"
-        />
-        <FormField
-          autoCapitalize="none"
-          autoCorrect={false}
-          icon="lock"
-          name="password"
-          placeholder="Password"
-          secureTextEntry
-          textContentType="password"
-        />
-        <SubmitButton title="Login" />
-      </Form>
-    </Screen>
+        <Form
+          initialValues={{ email: "", password: "" }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          {/* <ErrorMessage
+            error="Invalid email and/or password."
+            visible={loginFailed}
+          /> */}
+          <FormField
+            autoCapitalize="none"
+            autoCorrect={false}
+            icon="email"
+            keyboardType="email-address"
+            name="email"
+            placeholder="Email"
+            textContentType="emailAddress"
+          />
+          <FormField
+            autoCapitalize="none"
+            autoCorrect={false}
+            icon="lock"
+            name="password"
+            placeholder="Password"
+            secureTextEntry
+            textContentType="password"
+          />
+          <SubmitButton title="Login" />
+        </Form>
+      </Screen>
+    </>
   );
 }
 

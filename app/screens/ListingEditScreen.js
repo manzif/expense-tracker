@@ -7,10 +7,11 @@ import {
   FormField,
   SubmitButton,
 } from "../Components/forms";
-import expensesApi from '../api/expensesApi';
+import { addExpense } from "../redux/actions/expensesActions";
+import { useDispatch, useSelector } from "react-redux";
+import { bindActionCreators } from "redux";
 import Screen from "../Components/Screen";
-import UploadScreen from "./UploadScreen";
-import useAuth from "../auth/useAuth";
+import ActivityIndicator from "../Components/ActivityIndicator";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
@@ -20,55 +21,46 @@ const validationSchema = Yup.object().shape({
 
 
 function ListingEditScreen() {
-  const { user } = useAuth();
-  const [uploadVisible, setUploadVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const id =  user.id
-  const handleSubmit = async (expenses, { resetForm }) => {
-    setProgress(0);
-    setUploadVisible(true);
-    const result = await expensesApi.addExpenses(
-      { ...expenses },
-      id,
-      (progress) => setProgress(progress)
-    );
 
-    if (!result.ok) {
-      setUploadVisible(false);
-      return alert("Could not save the expense");
-    }
+  const { user } = useSelector((state) => state.login);
+  const { savingExpense, errors } = useSelector((state) => state.expenses);
+  const dispatch = useDispatch();
+  const addExpenseAction = bindActionCreators(addExpense, dispatch)
+
+
+  const handleSubmit = (expenses, { resetForm }) => {
+
+    addExpenseAction({ ...expenses }, user.id );
 
     resetForm();
   };
 
   return (
-    <Screen style={styles.container}>
-      <UploadScreen
-        onDone={() => setUploadVisible(false)}
-        progress={progress}
-        visible={uploadVisible}
-      />
-      <Form
-        initialValues={{
-          title: "",
-          price: "",
-          date: "",
-        }}
-        onSubmit={handleSubmit}
-        validationSchema={validationSchema}
-      >
-        <FormField maxLength={255} name="title" placeholder="Title" />
-        <FormField maxLength={255} name="date" placeholder="date" />
-        <FormField
-          keyboardType="numeric"
-          maxLength={8}
-          name="price"
-          placeholder="Price"
-          width={120}
-        />
-        <SubmitButton title="Post" />
-      </Form>
-    </Screen>
+    <>
+      <ActivityIndicator visible={savingExpense} />
+      <Screen style={styles.container}>
+        <Form
+          initialValues={{
+            title: "",
+            price: "",
+            date: "",
+          }}
+          onSubmit={handleSubmit}
+          validationSchema={validationSchema}
+        >
+          <FormField maxLength={255} name="title" placeholder="Title" />
+          <FormField maxLength={255} name="date" placeholder="date" />
+          <FormField
+            keyboardType="numeric"
+            maxLength={8}
+            name="price"
+            placeholder="Price"
+            width={120}
+          />
+          <SubmitButton title="Post" />
+        </Form>
+      </Screen>
+    </>
   );
 }
 

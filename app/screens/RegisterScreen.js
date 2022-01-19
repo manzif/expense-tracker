@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import * as Yup from "yup";
 
 import Screen from "../Components/Screen";
 import { Form, FormField, SubmitButton, ErrorMessage } from "../Components/forms";
-import usersApi from "../api/users";
-import authApi from "../api/auth";
-import useAuth from "../auth/useAuth";
-import useApi from "../hooks/useApi";
+import { bindActionCreators } from "redux";
+import { register } from "../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
 import ActivityIndicator from "../Components/ActivityIndicator";
 
 const validationSchema = Yup.object().shape({
@@ -17,41 +16,24 @@ const validationSchema = Yup.object().shape({
 });
 
 function RegisterScreen () {
+  const { registering, errors } = useSelector((state) => state.register);
+  const dispatch = useDispatch();
+  const registerAction = bindActionCreators(register, dispatch)
 
-  const registerApi = useApi(usersApi.register);
-  const loginApi = useApi(authApi.login);
-  const auth = useAuth();
-  const [error, setError] = useState();
-
-  const handleSubmit = async (userInfo) => {
-    const result = await registerApi.request(userInfo);
-
-    if (!result.ok) {
-      if (result.data) setError(result.data.error);
-      else {
-        setError("An unexpected error occurred.");
-        console.log(result);
-      }
-      return;
-    }
-
-    const { data: authToken } = await loginApi.request(
-      userInfo.email,
-      userInfo.password
-    );
-    auth.logIn(authToken);
+  const handleSubmit = (userInfo) => {
+    registerAction(userInfo);
   };
 
   return (
     <>
-    <ActivityIndicator visible={registerApi.loading || loginApi.loading} />
+    <ActivityIndicator visible={registering} />
       <Screen style={styles.container}>
         <Form
           initialValues={{ name: "", email: "", password: "" }}
           onSubmit={handleSubmit}
           validationSchema={validationSchema}
         >
-          <ErrorMessage error={error} visible={error} />
+          {/* <ErrorMessage error={error} visible={error} /> */}
           <FormField
             autoCorrect={false}
             icon="account"

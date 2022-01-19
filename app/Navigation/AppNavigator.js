@@ -5,7 +5,6 @@ import ListingsScreen from '../screens/ListingsScreen';
 import AccountScreen from '../screens/AccountScreen';
 import ListingEditScreen from '../screens/ListingEditScreen';
 
-
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
