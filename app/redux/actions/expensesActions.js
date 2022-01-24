@@ -7,6 +7,7 @@ import {
     ADD_EXPENSES_SUCCESS,
     ADD_EXPENSES_START
 } from "./types";
+import authStorage from "../../auth/storage";
 
 const baseURL = 'https://rgaa-server.herokuapp.com/api/'
 
@@ -91,6 +92,7 @@ export const fetchExpenses = (id) => {
             .then(dispatch(fetchExpenseStart()))
             .then((res) => {
                 if (res.status === 200) {
+                    authStorage.storeExpenses(res.data.expenses) // saving our list of expenses
                     dispatch(fetchExpenseSuccess(res.data.expenses));
                 } else {
                     dispatch(fetchExpenseFailure(res.data.message));
@@ -99,5 +101,5 @@ export const fetchExpenses = (id) => {
             .catch((error) => {
                 dispatch(fetchExpenseFailure(error.message));
             });
-    };
+    }
 };

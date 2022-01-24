@@ -7,11 +7,12 @@ import {
   FormField,
   SubmitButton,
 } from "../Components/forms";
-import { addExpense } from "../redux/actions/expensesActions";
+import { addExpense, fetchExpenses } from "../redux/actions/expensesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import Screen from "../Components/Screen";
 import ActivityIndicator from "../Components/ActivityIndicator";
+import storage from '../auth/storage';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required().min(1).label("Title"),
@@ -26,11 +27,17 @@ function ListingEditScreen() {
   const { savingExpense, errors } = useSelector((state) => state.expenses);
   const dispatch = useDispatch();
   const addExpenseAction = bindActionCreators(addExpense, dispatch)
+  const fetchExpenseAction = bindActionCreators(fetchExpenses, dispatch)
+  const removeExpenses = async () => { await storage.removeExpenses() } // removing existing expenses in our storage
 
 
   const handleSubmit = (expenses, { resetForm }) => {
 
     addExpenseAction({ ...expenses }, user.id );
+
+    removeExpenses();
+
+    fetchExpenseAction(user.id)
 
     resetForm();
   };

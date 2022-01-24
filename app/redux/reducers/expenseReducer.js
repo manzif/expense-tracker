@@ -30,7 +30,7 @@ export const expenseReducer = (state = INITIAL_STATE, action) => {
         case FETCH_EXPENSES_START:
             return Object.assign({}, state, { fetchExpense: true });
         case FETCH_EXPENSES_SUCCESS:
-            return Object.assign({}, state, { fetchExpense: false, expenses: action.expenses });
+            return Object.assign({}, state, { fetchExpense: false, expenses: action.expenses, expenseSaved: true });
         case FETCH_EXPENSES_FAILURE:
             return Object.assign({}, state, {
                 fetchExpense: false,

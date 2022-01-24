@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ListingsScreen from '../screens/ListingsScreen';
 import AccountScreen from '../screens/AccountScreen';
 import ListingEditScreen from '../screens/ListingEditScreen';
+import { useSelector, useDispatch } from "react-redux";
+import { bindActionCreators } from "redux";
+import { fetchExpenses } from "../redux/actions/expensesActions";
+
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
+
+      const { user } = useSelector((state) => state.login);
+      const dispatch = useDispatch();
+      const fetchExpenseAction = bindActionCreators(fetchExpenses, dispatch)
+      useEffect(() => {
+          fetchExpenseAction(user.id);
+      }, []);
     return (
         <Tab.Navigator>
           <Tab.Screen 
