@@ -1,30 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import ActivityIndicator from "../Components/ActivityIndicator";
 
 import Screen from '../Components/Screen';
 import Card from '../Components/Card';
 import colors from '../config/colors';
-import { bindActionCreators } from "redux";
-import { fetchExpenses } from "../redux/actions/expensesActions";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import storage from '../auth/storage';
 
-function ListingsScreen(props) {
+function ListingsScreen (props) {
 
-    const { user } = useSelector((state) => state.login);
-    const { fetchExpense, expenses } = useSelector((state) => state.expenses);
-    const dispatch = useDispatch();
-    const fetchExpenseAction = bindActionCreators(fetchExpenses, dispatch)
+    const [values, seTValues] = useState({})
+    const { fetchExpense, expenseSaved } = useSelector((state) => state.expenses);
+
+    // console.log("\n\n", expenseSaved)
+
+    const getAllExpenses = async () => {
+        const result = await storage.getExpenses()
+        seTValues(result)
+    }
+
     useEffect(() => {
-        fetchExpenseAction(user.id);
+        getAllExpenses();
     }, []);
-
     return (
         <>
             <ActivityIndicator visible={fetchExpense} />
             <Screen style={styles.screen}>
                 <FlatList 
-                    data={expenses}
+                    data={values}
                     keyExtractor={listing => listing.id.toString()}
                     renderItem={({ item }) =>
                     <Card 
